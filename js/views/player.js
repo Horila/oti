@@ -500,9 +500,9 @@ export async function renderPlayer(app, { profile, navigate }) {
   draw();
   startTimers();
 
-  return () => {
+  return async () => {
     clearTimers();
     stopVoice();
-    if (!profileCleared && !showResumeSheet) saveProgress();
+    if (!profileCleared && !showResumeSheet) await saveProgress();
   };
 }

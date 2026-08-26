@@ -20,7 +20,7 @@ async function render() {
   const currentToken = ++renderToken;
 
   if (typeof unmountCurrent === "function") {
-    try { unmountCurrent(); } catch (e) { /* noop */ }
+    try { await unmountCurrent(); } catch (e) { /* noop */ }
     unmountCurrent = null;
   }
 

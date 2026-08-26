@@ -1,4 +1,4 @@
-const CACHE_NAME = "lazybum-v3";
+const CACHE_NAME = "lazybum-v4";
 
 const EXERCISE_COUNT = 20;
 const AUDIO_COUNT = 21;
@@ -19,11 +19,12 @@ const SHELL_URLS = [
   "./js/views/progress.js",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
+  "./assets/icon-512-maskable.png",
   ...Array.from({ length: EXERCISE_COUNT }, (_, i) => `./assets/exercises/${pad4(i + 1)}.png`),
   ...Array.from({ length: AUDIO_COUNT }, (_, i) => `./assets/audio/${pad4(i + 1)}.mp3`),
 ];
 
-const RUNTIME_CACHE_ORIGINS = ["esm.sh"];
+const RUNTIME_CACHE_ORIGINS = ["esm.sh", "fonts.googleapis.com", "fonts.gstatic.com"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
