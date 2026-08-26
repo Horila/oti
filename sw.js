@@ -1,4 +1,4 @@
-const CACHE_NAME = "lazybum-v1";
+const CACHE_NAME = "lazybum-v2";
 
 const SHELL_URLS = [
   "./",
