@@ -359,6 +359,20 @@ a { color: inherit; }
 .sheet-actions { display: flex; gap: 10px; }
 .sheet-actions .btn { flex: 1; }
 
+/* ---------- Badges ---------- */
+.badge-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.badge-row::-webkit-scrollbar { display: none; }
+.badge-item { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 64px; }
+.badge-circle {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--linen-card); border: 1px solid var(--linen-line);
+  color: var(--linen-line);
+  display: grid; place-items: center;
+}
+.badge-item.is-earned .badge-circle { background: var(--sage-deep); border-color: var(--sage-deep); color: #fff; }
+.badge-label { font-size: 0.72rem; text-align: center; color: var(--ink-soft); }
+.badge-item.is-earned .badge-label { color: var(--sage-deep); font-weight: 700; }
+
 /* ---------- Progress ---------- */
 .progress-header { text-align: center; display: flex; flex-direction: column; gap: 6px; }
 .session-entry { display: flex; gap: 14px; padding: 16px 0; border-top: 1px solid var(--linen-line); }

@@ -1,4 +1,5 @@
 import { listSessionLogs } from "../supabase.js";
+import { BADGES } from "../data.js";
 
 const MONTHS = ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "nov", "dec"];
 
@@ -36,6 +37,23 @@ export async function renderProgress(app, { profile, navigate }) {
           ? `<p style="color:var(--ink-soft)">Ai construit un ritm frumos de ${profile.streakCount} ${profile.streakCount === 1 ? "zi" : "zile"}.</p>`
           : `<p style="color:var(--ink-soft)">Fiecare zi de aici înainte contează, exact așa cum e.</p>`}
       </header>
+
+      <section>
+        <h3 style="font-size:1.05rem; margin-bottom:12px;">Realizări</h3>
+        <div class="badge-row">
+          ${BADGES.map((b) => {
+            const earned = (profile.bestStreak || 0) >= b.milestone;
+            return `
+              <div class="badge-item ${earned ? "is-earned" : ""}" title="${b.title}">
+                <div class="badge-circle">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.6 6.2L21 9l-5 4.5L17.4 21 12 17.3 6.6 21 8 13.5 3 9l6.4-.8L12 2z" fill="currentColor"/></svg>
+                </div>
+                <span class="badge-label">${b.label}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </section>
 
       <div class="card" style="padding:6px 20px;">
         ${sessions.length === 0

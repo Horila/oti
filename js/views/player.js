@@ -244,6 +244,7 @@ export async function renderPlayer(app, { profile, navigate }) {
       const newStreak = computeNewStreak(profile.streakCount || 0, sessions);
       await updateProfile(profile.id, {
         streakCount: newStreak,
+        bestStreak: Math.max(profile.bestStreak || 0, newStreak),
         currentDayInWeek: (profile.currentDayInWeek || 0) + 1,
         inProgressExerciseIndex: null,
         inProgressElapsedSeconds: null,

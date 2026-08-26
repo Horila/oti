@@ -16,6 +16,8 @@ function toCamelProfile(row) {
     inProgressExerciseIndex: row.in_progress_exercise_index,
     inProgressElapsedSeconds: row.in_progress_elapsed_seconds,
     inProgressStartedAt: row.in_progress_started_at,
+    bestStreak: row.best_streak,
+    lastCelebratedMilestone: row.last_celebrated_milestone,
   };
 }
 
@@ -28,6 +30,8 @@ function toSnakeProfilePatch(patch) {
     inProgressExerciseIndex: "in_progress_exercise_index",
     inProgressElapsedSeconds: "in_progress_elapsed_seconds",
     inProgressStartedAt: "in_progress_started_at",
+    bestStreak: "best_streak",
+    lastCelebratedMilestone: "last_celebrated_milestone",
   };
   const out = { updated_at: new Date().toISOString() };
   for (const [k, v] of Object.entries(patch)) {
@@ -77,6 +81,30 @@ export async function createSessionLog(entry) {
     completed: entry.completed ?? true,
     comfort_rating: entry.comfortRating ?? null,
     sleep_quality: entry.sleepQuality ?? null,
+    note: entry.note ?? null,
+  });
+  if (error) throw error;
+}
+
+export async function getLatestWeeklyCheckin() {
+  const { data, error } = await supabase
+    .from("nesta_weekly_checkin")
+    .select("date")
+    .order("date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? data.date : null;
+}
+
+export async function createWeeklyCheckin(entry) {
+  const { error } = await supabase.from("nesta_weekly_checkin").insert({
+    date: new Date().toISOString(),
+    mobility: entry.mobility ?? null,
+    mood: entry.mood ?? null,
+    stress: entry.stress ?? null,
+    energy: entry.energy ?? null,
+    discomfort: entry.discomfort ?? null,
     note: entry.note ?? null,
   });
   if (error) throw error;

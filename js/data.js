@@ -46,6 +46,31 @@ export const HABITS = [
 
 export const DISCLAIMER = "Mișcarea blândă este în general sigură. Dacă ai afecțiuni articulare sau cardiace, o discuție cu medicul tău este întotdeauna o idee bună.";
 
+export const BADGES = [
+  { milestone: 3, label: "3 zile", title: "Un început blând", body: "Ai apărut de trei ori pentru tine. Așa începe orice obicei bun." },
+  { milestone: 7, label: "O săptămână", title: "O săptămână întreagă de grijă pentru tine", body: "Șapte zile de mișcare blândă, în ritmul tău." },
+  { milestone: 14, label: "2 săptămâni", title: "Consecvență calmă", body: "Două săptămâni. Corpul tău începe să recunoască acest ritm." },
+  { milestone: 21, label: "3 săptămâni", title: "Un obicei prinde rădăcini", body: "Trei săptămâni de prezență. Asta e deja o parte din tine." },
+  { milestone: 30, label: "O lună", title: "O lună întreagă", body: "Ai construit ceva frumos, zi cu zi, fără grabă." },
+];
+
+export function nextBadge(bestStreak) {
+  return BADGES.find((b) => b.milestone > bestStreak) || null;
+}
+
+export function newlyEarnedBadge(bestStreak, lastCelebratedMilestone) {
+  const earned = BADGES.filter((b) => b.milestone <= bestStreak && b.milestone > lastCelebratedMilestone);
+  return earned.length ? earned[earned.length - 1] : null;
+}
+
+export const WEEKLY_QUESTIONS = [
+  { key: "mobility", label: "Cum simți mobilitatea articulațiilor în ultima săptămână?" },
+  { key: "mood", label: "Cum ți-a fost dispoziția?" },
+  { key: "stress", label: "Cât de stresată te-ai simțit?" },
+  { key: "energy", label: "Cât de multă energie ai avut?" },
+  { key: "discomfort", label: "Cât disconfort fizic ai simțit (dureri, tensiune)?" },
+];
+
 export function exerciseById(id) {
   return EXERCISES.find((e) => e.id === id) || null;
 }
