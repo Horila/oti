@@ -41,14 +41,14 @@ function toSnakeProfilePatch(patch) {
 }
 
 export async function getProfile() {
-  const { data, error } = await supabase.from("nesta_profile").select("*").limit(1).single();
+  const { data, error } = await supabase.from("lazybum_profile").select("*").limit(1).single();
   if (error) throw error;
   return toCamelProfile(data);
 }
 
 export async function updateProfile(id, patch) {
   const { data, error } = await supabase
-    .from("nesta_profile")
+    .from("lazybum_profile")
     .update(toSnakeProfilePatch(patch))
     .eq("id", id)
     .select()
@@ -59,7 +59,7 @@ export async function updateProfile(id, patch) {
 
 export async function listSessionLogs() {
   const { data, error } = await supabase
-    .from("nesta_session_log")
+    .from("lazybum_session_log")
     .select("*")
     .order("date", { ascending: false });
   if (error) throw error;
@@ -75,7 +75,7 @@ export async function listSessionLogs() {
 }
 
 export async function createSessionLog(entry) {
-  const { error } = await supabase.from("nesta_session_log").insert({
+  const { error } = await supabase.from("lazybum_session_log").insert({
     date: entry.date ?? new Date().toISOString(),
     week_number: entry.weekNumber,
     completed: entry.completed ?? true,
@@ -88,7 +88,7 @@ export async function createSessionLog(entry) {
 
 export async function getLatestWeeklyCheckin() {
   const { data, error } = await supabase
-    .from("nesta_weekly_checkin")
+    .from("lazybum_weekly_checkin")
     .select("date")
     .order("date", { ascending: false })
     .limit(1)
@@ -99,7 +99,7 @@ export async function getLatestWeeklyCheckin() {
 
 export async function listWeeklyCheckins() {
   const { data, error } = await supabase
-    .from("nesta_weekly_checkin")
+    .from("lazybum_weekly_checkin")
     .select("*")
     .order("date", { ascending: false });
   if (error) throw error;
@@ -115,7 +115,7 @@ export async function listWeeklyCheckins() {
 }
 
 export async function createWeeklyCheckin(entry) {
-  const { error } = await supabase.from("nesta_weekly_checkin").insert({
+  const { error } = await supabase.from("lazybum_weekly_checkin").insert({
     date: new Date().toISOString(),
     mobility: entry.mobility ?? null,
     mood: entry.mood ?? null,

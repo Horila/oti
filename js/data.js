@@ -29,7 +29,7 @@ export const WEEK_PROGRAMS = [
 ];
 
 export const ONBOARDING_SLIDES = [
-  { order: 1, title: "Bine ai venit, draga mea", body: "Nesta Flow este un spațiu blând, creat special pentru tine. Aici nu există performanță, nu există ceasuri stresante — doar mișcare care hrănește corpul.", bullets: [] },
+  { order: 1, title: "Bine ai venit, draga mea", body: "LazyBum este un spațiu blând, creat special pentru tine. Aici nu există performanță, nu există ceasuri stresante — doar mișcare care hrănește corpul.", bullets: [] },
   { order: 2, title: "8 minute sunt de ajuns", body: "Un angajament mic, dar consecvent, face mai mult decât orice oră de efort forțat. Fiecare zi de 8 minute este o declarație de grijă pentru tine.", bullets: ["Fără sărituri", "Fără impact pe articulații", "Doar mișcare conștientă"] },
   { order: 3, title: "Din pat sau de pe canapea", body: "Nu trebuie să te ridici, nu trebuie să te pregătești. Exercițiile sunt create pentru poziția culcat sau așezat, cu impact minim.", bullets: ["Începem cu respirația", "Fără echipament", "În ritmul tău"] },
   { order: 4, title: "Fără judecată, fără vinovăție", body: "Dacă o zi este mai grea, corpul tău vorbește — îl ascultăm. Nu există eșec, doar momente diferite ale aceluiași drum.", bullets: [] },

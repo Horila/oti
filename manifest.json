@@ -1,6 +1,6 @@
 {
-  "name": "Nesta Flow",
-  "short_name": "Nesta Flow",
+  "name": "LazyBum",
+  "short_name": "LazyBum",
   "description": "Rutina ta blândă de 8 minute, din pat sau de pe canapea.",
   "start_url": "./#/home",
   "scope": "./",

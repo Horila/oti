@@ -99,7 +99,7 @@ export async function renderProgress(app, { profile, navigate }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `nesta-flow-date-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `lazybum-date-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
