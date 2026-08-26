@@ -227,10 +227,13 @@ export async function renderPlayer(app, { profile, navigate }) {
 
   let selectedComfort = null;
   let selectedSleep = null;
+  let noteDraft = "";
+  let saveError = "";
 
   async function handleCompletionSave(skip) {
     const noteInput = document.getElementById("session-note");
     const note = skip ? "" : (noteInput?.value || "").slice(0, 500);
+    noteDraft = note;
     try {
       await createSessionLog({
         date: new Date().toISOString(),
@@ -259,8 +262,11 @@ export async function renderPlayer(app, { profile, navigate }) {
         inProgressElapsedSeconds: null,
         inProgressStartedAt: null,
       });
-    } catch (e) { /* noop */ }
-    navigate("/home");
+      navigate("/home");
+    } catch (e) {
+      saveError = "Nu am putut salva. Verifică internetul și încearcă din nou.";
+      draw();
+    }
   }
 
   function ratingDial(name, selected, onPick) {
@@ -381,7 +387,8 @@ export async function renderPlayer(app, { profile, navigate }) {
               ${ratingDial("sleep", selectedSleep)}
             </div>
             <textarea id="session-note" placeholder="O observație, opțional…" rows="2"
-              style="width:100%; border-radius:12px; border:1px solid var(--linen-line); background:var(--linen-card); color:var(--ink); padding:10px 12px; font:inherit; resize:none;"></textarea>
+              style="width:100%; border-radius:12px; border:1px solid var(--linen-line); background:var(--linen-card); color:var(--ink); padding:10px 12px; font:inherit; resize:none;">${noteDraft}</textarea>
+            ${saveError ? `<p style="color:var(--clay-deep);">${saveError}</p>` : ""}
             <div class="sheet-actions">
               <button class="btn btn-quiet" id="skip-save-btn">Sari peste</button>
               <button class="btn btn-primary" id="confirm-save-btn">Salvează</button>

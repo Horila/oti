@@ -3,6 +3,7 @@ import { updateProfile } from "../supabase.js";
 
 export async function renderOnboarding(app, { profile, navigate }) {
   let index = 0;
+  let errorMsg = "";
 
   function draw() {
     const slide = ONBOARDING_SLIDES[index];
@@ -18,6 +19,7 @@ export async function renderOnboarding(app, { profile, navigate }) {
           <p class="body">${slide.body}</p>
           ${slide.bullets.length ? `<ul>${slide.bullets.map((b) => `<li>${b}</li>`).join("")}</ul>` : ""}
         </div>
+        ${errorMsg ? `<p style="color:var(--clay-deep); text-align:center;">${errorMsg}</p>` : ""}
         <div class="onboarding-nav">
           <button class="btn btn-quiet" id="skip-btn" ${index === 0 ? "style=\"visibility:hidden\"" : ""}>Înapoi</button>
           <button class="btn btn-primary" id="next-btn">${isLast ? "Începe" : "Continuă"}</button>
@@ -30,8 +32,13 @@ export async function renderOnboarding(app, { profile, navigate }) {
     });
     document.getElementById("next-btn").addEventListener("click", async () => {
       if (isLast) {
-        await updateProfile(profile.id, { hasCompletedOnboarding: true });
-        navigate("/home");
+        try {
+          await updateProfile(profile.id, { hasCompletedOnboarding: true });
+          navigate("/home");
+        } catch (e) {
+          errorMsg = "Nu am putut salva. Verifică internetul și încearcă din nou.";
+          draw();
+        }
       } else {
         index += 1;
         draw();

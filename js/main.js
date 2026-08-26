@@ -39,14 +39,19 @@ async function render() {
 
   const ctx = { profile, navigate };
 
-  if (route === "/onboarding") {
-    unmountCurrent = await renderOnboarding(app, ctx);
-  } else if (route === "/player") {
-    unmountCurrent = await renderPlayer(app, ctx);
-  } else if (route === "/progress") {
-    unmountCurrent = await renderProgress(app, ctx);
-  } else {
-    unmountCurrent = await renderHome(app, ctx);
+  try {
+    if (route === "/onboarding") {
+      unmountCurrent = await renderOnboarding(app, ctx);
+    } else if (route === "/player") {
+      unmountCurrent = await renderPlayer(app, ctx);
+    } else if (route === "/progress") {
+      unmountCurrent = await renderProgress(app, ctx);
+    } else {
+      unmountCurrent = await renderHome(app, ctx);
+    }
+  } catch (err) {
+    app.innerHTML = `<div class="loading-screen"><p class="empty-note">Nu am putut încărca ecranul. Verifică conexiunea și reîncarcă pagina.</p></div>`;
+    console.error(err);
   }
 }
 

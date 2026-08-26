@@ -40,6 +40,8 @@ export async function renderHome(app, { profile, navigate }) {
   let showWeeklySheet = false;
   let showCelebration = !!badgeToCelebrate;
   let weeklyCardDismissed = false;
+  let weeklyError = "";
+  let resumeError = "";
   const answers = {};
 
   function dial(key) {
@@ -68,6 +70,7 @@ export async function renderHome(app, { profile, navigate }) {
               <button class="btn btn-ghost" id="resume-btn" style="flex:1;">Continuă</button>
               <button class="btn btn-quiet" id="discard-btn">Începe una nouă</button>
             </div>
+            ${resumeError ? `<p style="color:var(--clay-deep); margin-top:8px;">${resumeError}</p>` : ""}
           </div>
         ` : ""}
 
@@ -131,6 +134,7 @@ export async function renderHome(app, { profile, navigate }) {
                 ${dial(q.key)}
               </div>
             `).join("")}
+            ${weeklyError ? `<p style="color:var(--clay-deep);">${weeklyError}</p>` : ""}
             <div class="sheet-actions">
               <button class="btn btn-quiet" id="weekly-cancel-btn">Închide</button>
               <button class="btn btn-primary" id="weekly-save-btn">Salvează</button>
@@ -160,20 +164,30 @@ export async function renderHome(app, { profile, navigate }) {
     document.getElementById("start-btn").addEventListener("click", () => navigate("/player"));
     document.getElementById("resume-btn")?.addEventListener("click", () => navigate("/player"));
     document.getElementById("discard-btn")?.addEventListener("click", async () => {
-      await updateProfile(profile.id, {
-        inProgressExerciseIndex: null,
-        inProgressElapsedSeconds: null,
-        inProgressStartedAt: null,
-      });
-      navigate("/home");
+      try {
+        await updateProfile(profile.id, {
+          inProgressExerciseIndex: null,
+          inProgressElapsedSeconds: null,
+          inProgressStartedAt: null,
+        });
+        navigate("/home");
+      } catch (e) {
+        resumeError = "Nu am putut salva. Încearcă din nou.";
+        draw();
+      }
     });
 
     document.getElementById("weekly-start-btn")?.addEventListener("click", () => { showWeeklySheet = true; draw(); });
     document.getElementById("weekly-skip-btn")?.addEventListener("click", () => { weeklyCardDismissed = true; draw(); });
     document.getElementById("weekly-cancel-btn")?.addEventListener("click", () => { showWeeklySheet = false; draw(); });
     document.getElementById("weekly-save-btn")?.addEventListener("click", async () => {
-      await createWeeklyCheckin(answers);
-      navigate("/home");
+      try {
+        await createWeeklyCheckin(answers);
+        navigate("/home");
+      } catch (e) {
+        weeklyError = "Nu am putut salva. Verifică internetul și încearcă din nou.";
+        draw();
+      }
     });
     document.querySelectorAll(".sheet .dial").forEach((el) => {
       el.querySelectorAll("button").forEach((btn) => {
