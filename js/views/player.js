@@ -54,12 +54,20 @@ export async function renderPlayer(app, { profile, navigate }) {
     } catch (e) { /* noop */ }
   }
 
-  function playCue(exercise) {
+  function playAudioOrSpeak(src, fallbackText) {
     if (!voiceEnabled) return;
     stopVoice();
-    audioEl.src = exerciseAudioSrc(exercise.id);
-    audioEl.onerror = () => speakText(exercise.voiceoverCue);
-    audioEl.play().catch(() => speakText(exercise.voiceoverCue));
+    audioEl.src = src;
+    audioEl.onerror = () => speakText(fallbackText);
+    audioEl.play().catch(() => speakText(fallbackText));
+  }
+
+  function playCue(exercise) {
+    playAudioOrSpeak(exerciseAudioSrc(exercise.id), exercise.voiceoverCue);
+  }
+
+  function playSideCue() {
+    playAudioOrSpeak(exerciseAudioSrc("0021"), "Acum partea dreaptă.");
   }
 
   async function saveProgress() {
@@ -101,7 +109,7 @@ export async function renderPlayer(app, { profile, navigate }) {
 
     if (exercise.unilateral && !halfSpoken && elapsed > half && elapsed < half + 2) {
       halfSpoken = true;
-      speakText("Acum partea dreaptă.");
+      playSideCue();
     }
 
     if (elapsed >= total) {
