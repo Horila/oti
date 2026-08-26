@@ -194,7 +194,7 @@ export async function renderPlayer(app, { profile, navigate }) {
   }
 
   async function handleResume() {
-    index = Math.min(profile.inProgressExerciseIndex || 0, Math.max(0, sequence.length - 1));
+    index = Math.max(0, Math.min(profile.inProgressExerciseIndex || 0, sequence.length - 1));
     elapsed = profile.inProgressElapsedSeconds || 0;
     showResumeSheet = false;
     paused = true;
@@ -272,6 +272,16 @@ export async function renderPlayer(app, { profile, navigate }) {
     const note = skip ? "" : (noteInput?.value || "").slice(0, 500);
     noteDraft = note;
     try {
+      const priorSessions = await listSessionLogs();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const alreadyCompletedToday = priorSessions.some((s) => {
+        if (!s.completed) return false;
+        const d = new Date(s.date);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime() === today.getTime();
+      });
+
       await createSessionLog({
         date: new Date().toISOString(),
         weekNumber: profile.currentWeek,
@@ -280,18 +290,22 @@ export async function renderPlayer(app, { profile, navigate }) {
         sleepQuality: skip ? null : selectedSleep,
         note,
       });
-      const sessions = await listSessionLogs();
-      const newStreak = computeNewStreak(profile.streakCount || 0, sessions);
 
-      let newDayInWeek = (profile.currentDayInWeek || 0) + 1;
+      let newStreak = profile.streakCount || 0;
       let newWeek = profile.currentWeek || 1;
-      if (newDayInWeek >= 7) {
-        if (newWeek < 4) {
-          newWeek += 1;
-          newDayInWeek = 0;
-        } else {
-          newWeek = 4;
-          newDayInWeek = 6;
+      let newDayInWeek = profile.currentDayInWeek || 0;
+
+      if (!alreadyCompletedToday) {
+        newStreak = computeNewStreak(profile.streakCount || 0, priorSessions);
+        newDayInWeek = (profile.currentDayInWeek || 0) + 1;
+        if (newDayInWeek >= 7) {
+          if (newWeek < 4) {
+            newWeek += 1;
+            newDayInWeek = 0;
+          } else {
+            newWeek = 4;
+            newDayInWeek = 6;
+          }
         }
       }
 
@@ -482,6 +496,6 @@ export async function renderPlayer(app, { profile, navigate }) {
   return () => {
     clearTimers();
     stopVoice();
-    saveProgress();
+    if (!completed) saveProgress();
   };
 }
