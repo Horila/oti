@@ -3,7 +3,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = "https://dcaeetbbufwsbpdhsnhy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_WufbIxfaujFYDbxcQgov4A_UWAHcgKn";
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false },
+});
 
 function toCamelProfile(row) {
   if (!row) return null;
