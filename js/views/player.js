@@ -455,10 +455,20 @@ export async function renderPlayer(app, { profile, navigate }) {
     document.getElementById("fresh-btn")?.addEventListener("click", handleStartFresh);
 
     document.querySelectorAll('[data-dial="comfort"] button').forEach((btn) => {
-      btn.addEventListener("click", () => { selectedComfort = Number(btn.dataset.value); draw(); });
+      btn.addEventListener("click", () => {
+        const noteInput = document.getElementById("session-note");
+        if (noteInput) noteDraft = noteInput.value;
+        selectedComfort = Number(btn.dataset.value);
+        draw();
+      });
     });
     document.querySelectorAll('[data-dial="sleep"] button').forEach((btn) => {
-      btn.addEventListener("click", () => { selectedSleep = Number(btn.dataset.value); draw(); });
+      btn.addEventListener("click", () => {
+        const noteInput = document.getElementById("session-note");
+        if (noteInput) noteDraft = noteInput.value;
+        selectedSleep = Number(btn.dataset.value);
+        draw();
+      });
     });
     document.getElementById("skip-save-btn")?.addEventListener("click", () => handleCompletionSave(true));
     document.getElementById("confirm-save-btn")?.addEventListener("click", () => handleCompletionSave(false));
