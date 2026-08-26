@@ -97,6 +97,23 @@ export async function getLatestWeeklyCheckin() {
   return data ? data.date : null;
 }
 
+export async function listWeeklyCheckins() {
+  const { data, error } = await supabase
+    .from("nesta_weekly_checkin")
+    .select("*")
+    .order("date", { ascending: false });
+  if (error) throw error;
+  return (data || []).map((row) => ({
+    date: row.date,
+    mobility: row.mobility,
+    mood: row.mood,
+    stress: row.stress,
+    energy: row.energy,
+    discomfort: row.discomfort,
+    note: row.note,
+  }));
+}
+
 export async function createWeeklyCheckin(entry) {
   const { error } = await supabase.from("nesta_weekly_checkin").insert({
     date: new Date().toISOString(),

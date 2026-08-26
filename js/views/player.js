@@ -242,10 +242,19 @@ export async function renderPlayer(app, { profile, navigate }) {
       });
       const sessions = await listSessionLogs();
       const newStreak = computeNewStreak(profile.streakCount || 0, sessions);
+
+      let newDayInWeek = (profile.currentDayInWeek || 0) + 1;
+      let newWeek = profile.currentWeek || 1;
+      if (newDayInWeek >= 7) {
+        newWeek = Math.min(4, newWeek + 1);
+        newDayInWeek = 0;
+      }
+
       await updateProfile(profile.id, {
         streakCount: newStreak,
         bestStreak: Math.max(profile.bestStreak || 0, newStreak),
-        currentDayInWeek: (profile.currentDayInWeek || 0) + 1,
+        currentWeek: newWeek,
+        currentDayInWeek: newDayInWeek,
         inProgressExerciseIndex: null,
         inProgressElapsedSeconds: null,
         inProgressStartedAt: null,

@@ -1,4 +1,4 @@
-import { listSessionLogs } from "../supabase.js";
+import { listSessionLogs, listWeeklyCheckins } from "../supabase.js";
 import { BADGES } from "../data.js";
 
 const MONTHS = ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "nov", "dec"];
@@ -76,8 +76,35 @@ export async function renderProgress(app, { profile, navigate }) {
               `;
             }).join("")}
       </div>
+
+      <button class="btn btn-quiet" id="export-btn" style="align-self:center;">
+        Descarcă o copie a datelor tale
+      </button>
     </div>
   `;
+
+  document.getElementById("export-btn").addEventListener("click", async () => {
+    const checkins = await listWeeklyCheckins();
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      profile: {
+        currentWeek: profile.currentWeek,
+        streakCount: profile.streakCount,
+        bestStreak: profile.bestStreak,
+      },
+      sessions,
+      weeklyCheckins: checkins,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `nesta-flow-date-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
 
   return () => {};
 }
