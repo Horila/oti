@@ -87,11 +87,7 @@ export async function renderProgress(app, { profile, navigate }) {
     const checkins = await listWeeklyCheckins();
     const payload = {
       exportedAt: new Date().toISOString(),
-      profile: {
-        currentWeek: profile.currentWeek,
-        streakCount: profile.streakCount,
-        bestStreak: profile.bestStreak,
-      },
+      profile,
       sessions,
       weeklyCheckins: checkins,
     };
@@ -103,7 +99,7 @@ export async function renderProgress(app, { profile, navigate }) {
     document.body.appendChild(a);
     a.click();
     a.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 
   return () => {};

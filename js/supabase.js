@@ -135,12 +135,16 @@ export function computeNewStreak(currentStreak, sessionLogs) {
   const completedDates = sessionLogs
     .filter((s) => s.completed)
     .map((s) => new Date(s.date))
+    .filter((d) => {
+      const date = new Date(d);
+      date.setHours(0, 0, 0, 0);
+      return date.getTime() < today.getTime();
+    })
     .sort((a, b) => b - a);
   if (completedDates.length === 0) return 1;
   const mostRecent = new Date(completedDates[0]);
   mostRecent.setHours(0, 0, 0, 0);
   const dayDiff = Math.round((today - mostRecent) / (1000 * 60 * 60 * 24));
-  if (dayDiff === 0) return Math.max(1, currentStreak);
   if (dayDiff === 1) return (currentStreak || 0) + 1;
   return 1;
 }

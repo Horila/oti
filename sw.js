@@ -1,4 +1,9 @@
-const CACHE_NAME = "lazybum-v2";
+const CACHE_NAME = "lazybum-v3";
+
+const EXERCISE_COUNT = 20;
+const AUDIO_COUNT = 21;
+
+function pad4(n) { return String(n).padStart(4, "0"); }
 
 const SHELL_URLS = [
   "./",
@@ -14,7 +19,11 @@ const SHELL_URLS = [
   "./js/views/progress.js",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
+  ...Array.from({ length: EXERCISE_COUNT }, (_, i) => `./assets/exercises/${pad4(i + 1)}.png`),
+  ...Array.from({ length: AUDIO_COUNT }, (_, i) => `./assets/audio/${pad4(i + 1)}.mp3`),
 ];
+
+const RUNTIME_CACHE_ORIGINS = ["esm.sh"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -37,7 +46,8 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
+  const sameOrigin = url.origin === self.location.origin;
+  if (!sameOrigin && !RUNTIME_CACHE_ORIGINS.includes(url.hostname)) return;
 
   event.respondWith(
     caches.match(req).then((cached) => {
@@ -48,7 +58,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
         }
         return res;
-      }).catch(() => cached);
+      }).catch(() => cached || new Response("Offline", { status: 503, statusText: "Service Unavailable" }));
     })
   );
 });

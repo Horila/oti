@@ -16,9 +16,36 @@ function formatTime(totalSeconds) {
 const RING_RADIUS = 96;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
+function replacementsKey(week) {
+  return `lazybum_replacements_w${week}`;
+}
+
+function loadReplacements(week) {
+  try {
+    return JSON.parse(localStorage.getItem(replacementsKey(week)) || "{}");
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveReplacement(week, index, exerciseId) {
+  const map = loadReplacements(week);
+  map[index] = exerciseId;
+  try { localStorage.setItem(replacementsKey(week), JSON.stringify(map)); } catch (e) { /* noop */ }
+}
+
+function clearReplacements(week) {
+  try { localStorage.removeItem(replacementsKey(week)); } catch (e) { /* noop */ }
+}
+
 export async function renderPlayer(app, { profile, navigate }) {
   const wp = weekProgram(profile.currentWeek);
   const sequence = buildSequenceForWeek(profile.currentWeek);
+  const replacements = loadReplacements(profile.currentWeek);
+  for (const [i, exerciseId] of Object.entries(replacements)) {
+    const swapped = exerciseById(exerciseId);
+    if (swapped && sequence[i]) sequence[i] = swapped;
+  }
 
   let index = 0;
   let elapsed = 0;
@@ -27,6 +54,7 @@ export async function renderPlayer(app, { profile, navigate }) {
   let voiceEnabled = true;
   let tickHandle = null;
   let saveHandle = null;
+  let speakTimeout = null;
   let lastSpokenId = null;
   let halfSpoken = false;
   const audioEl = new Audio();
@@ -36,6 +64,7 @@ export async function renderPlayer(app, { profile, navigate }) {
   let showCompletionSheet = false;
 
   function stopVoice() {
+    if (speakTimeout) { clearTimeout(speakTimeout); speakTimeout = null; }
     audioEl.pause();
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }
@@ -57,9 +86,13 @@ export async function renderPlayer(app, { profile, navigate }) {
   function playAudioOrSpeak(src, fallbackText) {
     if (!voiceEnabled) return;
     stopVoice();
+    let spoke = false;
+    const fallback = () => {
+      if (!spoke) { spoke = true; speakText(fallbackText); }
+    };
     audioEl.src = src;
-    audioEl.onerror = () => speakText(fallbackText);
-    audioEl.play().catch(() => speakText(fallbackText));
+    audioEl.onerror = fallback;
+    audioEl.play().catch(fallback);
   }
 
   function playCue(exercise) {
@@ -83,8 +116,10 @@ export async function renderPlayer(app, { profile, navigate }) {
   function clearTimers() {
     if (tickHandle) clearInterval(tickHandle);
     if (saveHandle) clearInterval(saveHandle);
+    if (speakTimeout) clearTimeout(speakTimeout);
     tickHandle = null;
     saveHandle = null;
+    speakTimeout = null;
   }
 
   function startTimers() {
@@ -155,7 +190,7 @@ export async function renderPlayer(app, { profile, navigate }) {
     if (!exercise || lastSpokenId === `${exercise.id}-${index}`) return;
     lastSpokenId = `${exercise.id}-${index}`;
     halfSpoken = false;
-    setTimeout(() => playCue(exercise), 250);
+    speakTimeout = setTimeout(() => { speakTimeout = null; playCue(exercise); }, 250);
   }
 
   async function handleResume() {
@@ -169,6 +204,7 @@ export async function renderPlayer(app, { profile, navigate }) {
 
   async function handleStartFresh() {
     await updateProfile(profile.id, { inProgressExerciseIndex: null, inProgressElapsedSeconds: null, inProgressStartedAt: null });
+    clearReplacements(profile.currentWeek);
     index = 0;
     elapsed = 0;
     showResumeSheet = false;
@@ -213,6 +249,7 @@ export async function renderPlayer(app, { profile, navigate }) {
     if (!altExercise) return;
     stopVoice();
     sequence[index] = altExercise;
+    saveReplacement(profile.currentWeek, index, altExercise.id);
     elapsed = 0;
     lastSpokenId = null;
     draw();
@@ -249,8 +286,13 @@ export async function renderPlayer(app, { profile, navigate }) {
       let newDayInWeek = (profile.currentDayInWeek || 0) + 1;
       let newWeek = profile.currentWeek || 1;
       if (newDayInWeek >= 7) {
-        newWeek = Math.min(4, newWeek + 1);
-        newDayInWeek = 0;
+        if (newWeek < 4) {
+          newWeek += 1;
+          newDayInWeek = 0;
+        } else {
+          newWeek = 4;
+          newDayInWeek = 6;
+        }
       }
 
       await updateProfile(profile.id, {
@@ -262,6 +304,7 @@ export async function renderPlayer(app, { profile, navigate }) {
         inProgressElapsedSeconds: null,
         inProgressStartedAt: null,
       });
+      clearReplacements(profile.currentWeek);
       navigate("/home");
     } catch (e) {
       saveError = "Nu am putut salva. Verifică internetul și încearcă din nou.";
@@ -270,8 +313,8 @@ export async function renderPlayer(app, { profile, navigate }) {
   }
 
   function ratingDial(name, selected, onPick) {
-    return `<div class="dial" data-dial="${name}">
-      ${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-value="${n}" class="${selected === n ? "is-selected" : ""}">${n}</button>`).join("")}
+    return `<div class="dial" data-dial="${name}" role="radiogroup" aria-label="${name}">
+      ${[1, 2, 3, 4, 5].map((n) => `<button type="button" role="radio" aria-checked="${selected === n}" aria-label="${n}" data-value="${n}" class="${selected === n ? "is-selected" : ""}">${n}</button>`).join("")}
     </div>`;
   }
 
@@ -429,5 +472,6 @@ export async function renderPlayer(app, { profile, navigate }) {
   return () => {
     clearTimers();
     stopVoice();
+    saveProgress();
   };
 }

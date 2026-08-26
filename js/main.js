@@ -6,6 +6,7 @@ import { renderProgress } from "./views/progress.js";
 
 const app = document.getElementById("app");
 let unmountCurrent = null;
+let renderToken = 0;
 
 export function navigate(path) {
   if (location.hash === `#${path}`) {
@@ -16,6 +17,8 @@ export function navigate(path) {
 }
 
 async function render() {
+  const currentToken = ++renderToken;
+
   if (typeof unmountCurrent === "function") {
     try { unmountCurrent(); } catch (e) { /* noop */ }
     unmountCurrent = null;
@@ -25,10 +28,13 @@ async function render() {
   try {
     profile = await getProfile();
   } catch (err) {
+    if (currentToken !== renderToken) return;
     app.innerHTML = `<div class="loading-screen"><p class="empty-note">Nu am putut încărca datele. Verifică conexiunea și reîncarcă pagina.</p></div>`;
     console.error(err);
     return;
   }
+
+  if (currentToken !== renderToken) return;
 
   let route = location.hash.replace(/^#/, "") || "/home";
   if (!profile.hasCompletedOnboarding && route !== "/onboarding") {
@@ -40,16 +46,24 @@ async function render() {
   const ctx = { profile, navigate };
 
   try {
+    let unmount;
     if (route === "/onboarding") {
-      unmountCurrent = await renderOnboarding(app, ctx);
+      unmount = await renderOnboarding(app, ctx);
     } else if (route === "/player") {
-      unmountCurrent = await renderPlayer(app, ctx);
+      unmount = await renderPlayer(app, ctx);
     } else if (route === "/progress") {
-      unmountCurrent = await renderProgress(app, ctx);
+      unmount = await renderProgress(app, ctx);
     } else {
-      unmountCurrent = await renderHome(app, ctx);
+      unmount = await renderHome(app, ctx);
     }
+
+    if (currentToken !== renderToken) {
+      try { unmount?.(); } catch (e) { /* noop */ }
+      return;
+    }
+    unmountCurrent = unmount;
   } catch (err) {
+    if (currentToken !== renderToken) return;
     app.innerHTML = `<div class="loading-screen"><p class="empty-note">Nu am putut încărca ecranul. Verifică conexiunea și reîncarcă pagina.</p></div>`;
     console.error(err);
   }

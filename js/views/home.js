@@ -8,7 +8,7 @@ function streakMessage(streak, lastCompletedDate) {
   if (lastCompletedDate) {
     const last = new Date(lastCompletedDate);
     last.setHours(0, 0, 0, 0);
-    const diffDays = Math.floor((today - last) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round((today - last) / (1000 * 60 * 60 * 24));
     if (diffDays > 1) return "Bine ai revenit. Astăzi este un nou început blând.";
   }
   if (!streak) return "Încă nu am început — astăzi este un moment bun.";
@@ -25,7 +25,7 @@ function daysSince(dateStr) {
   then.setHours(0, 0, 0, 0);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  return Math.floor((today - then) / (1000 * 60 * 60 * 24));
+  return Math.round((today - then) / (1000 * 60 * 60 * 24));
 }
 
 export async function renderHome(app, { profile, navigate }) {
@@ -45,8 +45,8 @@ export async function renderHome(app, { profile, navigate }) {
   const answers = {};
 
   function dial(key) {
-    return `<div class="dial" data-key="${key}">
-      ${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-value="${n}" class="${answers[key] === n ? "is-selected" : ""}">${n}</button>`).join("")}
+    return `<div class="dial" data-key="${key}" role="radiogroup" aria-label="${key}">
+      ${[1, 2, 3, 4, 5].map((n) => `<button type="button" role="radio" aria-checked="${answers[key] === n}" aria-label="${n}" data-value="${n}" class="${answers[key] === n ? "is-selected" : ""}">${n}</button>`).join("")}
     </div>`;
   }
 
@@ -81,7 +81,7 @@ export async function renderHome(app, { profile, navigate }) {
               <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7L8 5z" fill="#fff"/></svg>
             </div>
           </div>
-          <h2>Rutina de 8 minute</h2>
+          <span class="cta-title">Rutina de 8 minute</span>
           <p class="sub">Săptămâna ${wp.week}: ${wp.phaseName}</p>
           <p class="fine">Blând, scurt, fără grabă.</p>
         </button>

@@ -259,7 +259,13 @@ a { color: inherit; }
   background: rgba(255,255,255,0.16);
   display: grid; place-items: center;
 }
-.cta-card h2 { font-size: 1.6rem; color: #fff; }
+.cta-card .cta-title {
+  display: block;
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
+  font-size: 1.6rem;
+  color: #fff;
+}
 .cta-card .sub { color: rgba(255,255,255,0.85); }
 .cta-card .fine { color: rgba(255,255,255,0.65); font-style: italic; font-size: 0.9rem; }
 
