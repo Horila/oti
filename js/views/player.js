@@ -1,5 +1,5 @@
 import { buildSequenceForWeek, weekProgram, exerciseImageSrc, exerciseAudioSrc, exerciseById } from "../data.js";
-import { updateProfile, createSessionLog, listSessionLogs, computeNewStreak } from "../supabase.js";
+import { updateProfile, createSessionLog, listSessionLogs, computeNewStreak, isCompletedToday } from "../supabase.js";
 
 function computeDuration(exercise, volumeMultiplier) {
   const base = Math.round(exercise.durationSeconds * volumeMultiplier);
@@ -258,7 +258,7 @@ export async function renderPlayer(app, { profile, navigate }) {
   async function handleExit() {
     stopVoice();
     clearTimers();
-    await saveProgress();
+    if (!showResumeSheet) await saveProgress();
     navigate("/home");
   }
 
@@ -266,30 +266,35 @@ export async function renderPlayer(app, { profile, navigate }) {
   let selectedSleep = null;
   let noteDraft = "";
   let saveError = "";
+  let saving = false;
+  let sessionLogCreated = false;
+  let profileCleared = false;
+  let alreadyCompletedToday = null;
+  let priorSessions = null;
 
   async function handleCompletionSave(skip) {
+    if (saving) return;
+    saving = true;
     const noteInput = document.getElementById("session-note");
     const note = skip ? "" : (noteInput?.value || "").slice(0, 500);
     noteDraft = note;
     try {
-      const priorSessions = await listSessionLogs();
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const alreadyCompletedToday = priorSessions.some((s) => {
-        if (!s.completed) return false;
-        const d = new Date(s.date);
-        d.setHours(0, 0, 0, 0);
-        return d.getTime() === today.getTime();
-      });
+      if (priorSessions === null) {
+        priorSessions = await listSessionLogs();
+        alreadyCompletedToday = isCompletedToday(priorSessions);
+      }
 
-      await createSessionLog({
-        date: new Date().toISOString(),
-        weekNumber: profile.currentWeek,
-        completed: true,
-        comfortRating: skip ? null : selectedComfort,
-        sleepQuality: skip ? null : selectedSleep,
-        note,
-      });
+      if (!sessionLogCreated) {
+        await createSessionLog({
+          date: new Date().toISOString(),
+          weekNumber: profile.currentWeek,
+          completed: true,
+          comfortRating: skip ? null : selectedComfort,
+          sleepQuality: skip ? null : selectedSleep,
+          note,
+        });
+        sessionLogCreated = true;
+      }
 
       let newStreak = profile.streakCount || 0;
       let newWeek = profile.currentWeek || 1;
@@ -318,9 +323,11 @@ export async function renderPlayer(app, { profile, navigate }) {
         inProgressElapsedSeconds: null,
         inProgressStartedAt: null,
       });
+      profileCleared = true;
       clearReplacements(profile.currentWeek);
       navigate("/home");
     } catch (e) {
+      saving = false;
       saveError = "Nu am putut salva. Verifică internetul și încearcă din nou.";
       draw();
     }
@@ -496,6 +503,6 @@ export async function renderPlayer(app, { profile, navigate }) {
   return () => {
     clearTimers();
     stopVoice();
-    if (!completed) saveProgress();
+    if (!profileCleared && !showResumeSheet) saveProgress();
   };
 }

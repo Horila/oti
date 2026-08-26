@@ -129,6 +129,17 @@ export async function createWeeklyCheckin(entry) {
   if (error) throw error;
 }
 
+function toLocalMidnight(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+export function isCompletedToday(sessionLogs) {
+  const today = toLocalMidnight(new Date());
+  return sessionLogs.some((s) => s.completed && toLocalMidnight(s.date).getTime() === today.getTime());
+}
+
 export function computeNewStreak(currentStreak, sessionLogs) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
