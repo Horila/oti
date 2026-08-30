@@ -1,4 +1,4 @@
-const CACHE_NAME = "lazybum-v4";
+const CACHE_NAME = "lazybum-v5";
 
 const EXERCISE_COUNT = 20;
 const AUDIO_COUNT = 21;
@@ -12,7 +12,7 @@ const SHELL_URLS = [
   "./manifest.json",
   "./js/main.js",
   "./js/data.js",
-  "./js/supabase.js",
+  "./js/storage.js",
   "./js/views/home.js",
   "./js/views/onboarding.js",
   "./js/views/player.js",
@@ -24,7 +24,7 @@ const SHELL_URLS = [
   ...Array.from({ length: AUDIO_COUNT }, (_, i) => `./assets/audio/${pad4(i + 1)}.mp3`),
 ];
 
-const RUNTIME_CACHE_ORIGINS = ["esm.sh", "fonts.googleapis.com", "fonts.gstatic.com"];
+const RUNTIME_CACHE_ORIGINS = ["fonts.googleapis.com", "fonts.gstatic.com"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -42,7 +42,7 @@ self.addEventListener("activate", (event) => {
 
 // Cache-first for our own static files (app shell + exercise images/audio),
 // so the workout still plays smoothly on flaky wifi once assets are seen once.
-// Supabase/CDN requests pass straight through — profile/session data still needs a connection.
+// Profile/session data is all localStorage now — no network dependency at all.
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;

@@ -1,4 +1,4 @@
-import { getProfile } from "./supabase.js";
+import { getProfile } from "./storage.js";
 import { renderOnboarding } from "./views/onboarding.js";
 import { renderHome } from "./views/home.js";
 import { renderPlayer } from "./views/player.js";

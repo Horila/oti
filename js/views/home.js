@@ -1,5 +1,5 @@
 import { HABITS, DISCLAIMER, weekProgram, BADGES, newlyEarnedBadge, WEEKLY_QUESTIONS } from "../data.js";
-import { listSessionLogs, updateProfile, getLatestWeeklyCheckin, createWeeklyCheckin } from "../supabase.js";
+import { listSessionLogs, updateProfile, getLatestWeeklyCheckin, createWeeklyCheckin } from "../storage.js";
 
 function streakMessage(streak, lastCompletedDate) {
   const today = new Date();

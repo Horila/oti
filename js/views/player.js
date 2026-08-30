@@ -1,5 +1,5 @@
 import { buildSequenceForWeek, weekProgram, exerciseImageSrc, exerciseAudioSrc, exerciseById } from "../data.js";
-import { updateProfile, createSessionLog, listSessionLogs, computeNewStreak, isCompletedToday } from "../supabase.js";
+import { updateProfile, createSessionLog, listSessionLogs, computeNewStreak, isCompletedToday } from "../storage.js";
 
 function computeDuration(exercise, volumeMultiplier) {
   const base = Math.round(exercise.durationSeconds * volumeMultiplier);

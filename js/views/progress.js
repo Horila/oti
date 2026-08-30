@@ -1,4 +1,4 @@
-import { listSessionLogs, listWeeklyCheckins } from "../supabase.js";
+import { listSessionLogs, listWeeklyCheckins } from "../storage.js";
 import { BADGES } from "../data.js";
 
 const MONTHS = ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "nov", "dec"];

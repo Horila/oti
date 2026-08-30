@@ -1,5 +1,5 @@
 import { ONBOARDING_SLIDES } from "../data.js";
-import { updateProfile } from "../supabase.js";
+import { updateProfile } from "../storage.js";
 
 export async function renderOnboarding(app, { profile, navigate }) {
   let index = 0;
